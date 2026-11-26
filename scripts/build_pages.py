@@ -274,9 +274,16 @@ def studio_index(posts, studies):
     featured = next((p for p in posts if p["slug"] == FEATURED), posts[0])
     rest = [p for p in posts if p is not featured]
     lead = "".join(f'<p style="margin: 0; font-size: 18px; color: #3F3D38">{html.escape(t)}</p>' for t in featured["lead"])
-    feature = f'''<article style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: center; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 32px">
-{thumb(featured, 320)}
-<div style="display: flex; flex-direction: column; gap: 14px">
+    hero = f'ideas/images/heroes/{featured["slug"]}.svg'
+    if (ROOT / hero).exists():
+        # Show the whole image, with the panel filled in the image's own background colour.
+        bg = re.search(r'<rect width="640" height="360" fill="(#[0-9A-Fa-f]{6})"', (ROOT / hero).read_text()).group(1)
+        picture = f'<div style="display: flex; align-items: center; background: {bg}; min-height: 260px"><img src="{hero}" alt="" style="display: block; width: 100%; height: auto"></div>'
+    else:
+        picture = f'<div style="padding: 32px 0 0 32px">{thumb(featured, 320)}</div>'
+    feature = f'''<article style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; overflow: hidden">
+{picture}
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 36px">
 {tag_line("Idea", f'<span style="font-weight: 600; color: #C2410C">Featured</span><span>{meta(featured)}</span>')}
 <h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; line-height: 1.1"><a href="ideas/{featured["slug"]}.html" style="color: #121417; text-decoration: none">{inline(featured["title"])}</a></h2>
 {lead}
