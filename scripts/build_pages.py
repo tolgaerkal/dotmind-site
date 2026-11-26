@@ -57,7 +57,20 @@ DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-l
 ) + "</span>"
 
 
-def page(title, description, prefix, body, nav=("studies.html", "Studio Studies"), width=760):
+def header(prefix, hub):
+    # Same header as index.html, with Studio Studies marked as the current section.
+    current = ' aria-current="page"' if hub else ""
+    return f"""<header class="no-print" style="border-bottom: 1px solid #E2E0D8; background: #F7F6F2">
+<div style="max-width: 1200px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="{prefix}index.html" style="display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: #121417; {DISPLAY}; font-weight: 600; font-size: 24px; letter-spacing: -0.02em">dotmind{DOTS}</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; font-size: 16px">
+<a href="{prefix}index.html#journey" style="color: #121417; text-decoration: none">How it works</a>
+<a href="{prefix}studies.html"{current} style="color: #121417; text-decoration: underline; text-decoration-color: #C2410C; text-decoration-thickness: 2px; text-underline-offset: 6px; font-weight: 600">Studio Studies</a>
+<a href="{prefix}index.html#about" style="color: #121417; text-decoration: none">About</a>
+</nav></div></header>"""
+
+
+def page(title, description, prefix, body, width=760, hub=False):
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -74,11 +87,8 @@ def page(title, description, prefix, body, nav=("studies.html", "Studio Studies"
 <body>
 {GTM_BODY}
 <div style="font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; color: #121417; background: #F7F6F2; line-height: 1.5; min-height: 100vh">
-<div style="max-width: {width}px; margin: 0 auto; padding: 56px 24px 80px; display: flex; flex-direction: column; gap: 28px">
-<nav aria-label="Site" class="no-print" style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px">
-<a href="{prefix}index.html" style="display: flex; align-items: baseline; gap: 6px; {DISPLAY}; font-weight: 600; font-size: 22px; color: #121417; text-decoration: none">dotmind{DOTS}</a>
-<a href="{prefix}{nav[0]}" style="font-size: 16px">{nav[1]}</a>
-</nav>
+{header(prefix, hub)}
+<div style="max-width: {width}px; margin: 0 auto; padding: 48px 24px 80px; display: flex; flex-direction: column; gap: 28px">
 {body}
 <p class="no-print" style="margin: 24px 0 0; padding-top: 24px; border-top: 1px solid #E2E0D8; font-size: 16px"><a href="{prefix}index.html#contact" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 500">Bring us a service</a></p>
 </div>
@@ -305,7 +315,7 @@ def studio_index(posts, studies):
 {section("studies", "Studies", "How our agent roles could work on real public services. Built only from what agencies publish; not commissioned projects, and not reviewed or endorsed by the agencies.", study_cards)}
 {section("ideas", "Ideas", "", idea_cards)}
 {section("tools", "Playbook and tools", "Free to use, adapt and share inside your agency.", tool_cards)}'''
-    return page("Studio Studies — dotmind", intro, "", body, nav=("index.html#about", "About"), width=1100)
+    return page("Studio Studies — dotmind", intro, "", body, width=1100, hub=True)
 
 
 def build_playbook():
@@ -328,7 +338,7 @@ def build_playbook():
 {download}
 {render(lines[1:])}
 </main>"""
-    (ROOT / "playbook.html").write_text(page(f"{title} — dotmind", summary, "", body, nav=("studies.html", "Studio Studies"), width=960), encoding="utf-8")
+    (ROOT / "playbook.html").write_text(page(f"{title} — dotmind", summary, "", body, width=960), encoding="utf-8")
     # The downloadable copy travels on its own, so point its links at the live site.
     absolute = re.sub(r"\]\((?!https?:|#|mailto:)([^)]+)\)", lambda m: f"]({SITE}{m.group(1)})", source)
     (ROOT / "playbook.md").write_text(absolute, encoding="utf-8")
