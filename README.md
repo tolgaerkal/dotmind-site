@@ -31,17 +31,10 @@ python3 -m http.server 8000
 4. The `CNAME` file sets the custom domain to `dotmind.org`. Point your domain's DNS at GitHub Pages
    (see GitHub's docs on configuring a custom domain), then tick **Enforce HTTPS** once it's available.
 
-## Contact form
+## Contact
 
-The form posts to `api/contact.js`, a Vercel serverless function that emails each submission through
-[Resend](https://resend.com). Set these environment variables in Vercel (**Settings → Environment Variables**),
-then redeploy:
-
-- `RESEND_API_KEY` — your Resend API key
-- `CONTACT_TO` — where submissions go (comma-separate several addresses)
-- `CONTACT_FROM` — the sender, on a domain verified in Resend, e.g. `dotmind <hello@dotmind.org>`
-
-Replies go straight to the person who filled in the form. The form only works on Vercel; GitHub Pages can't run the function.
+The contact section links to `hello@dotmind.org` with a pre-filled subject and prompts. There is no form or backend.
+Clicks on any email link push a `contact_email_click` event to Google Tag Manager.
 
 ## Ideas and the playbook
 
