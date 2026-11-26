@@ -2,7 +2,8 @@
 """Build the Ideas section and the open playbook from Markdown.
 
 Reads content/ideas/*.md and writes ideas.html (the list) and ideas/<slug>.html (one page per post).
-Each post starts with "# Title" and a "*Author · Month D, YYYY*" byline.
+Reads content/studies/*.md and writes studies/<slug>.html; studies are listed on ideas.html too.
+Each post or study starts with "# Title" and a "*Author · Month D, YYYY*" byline.
 
 Reads content/playbook.md and writes playbook.html, plus playbook.md (a downloadable copy with
 absolute links). Run from the repo root:
@@ -10,7 +11,7 @@ absolute links). Run from the repo root:
     python3 scripts/build_pages.py
 
 Only standard library, and only the Markdown the posts use: headings, paragraphs, lists, tables,
-### subheadings, images on their own line, **bold**, *italic* and [links](url).
+### subheadings, images on their own line, "> " notes, **bold**, *italic* and [links](url).
 """
 
 import html
@@ -21,6 +22,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "content" / "ideas"
 OUT = ROOT / "ideas"
+STUDIES_SRC = ROOT / "content" / "studies"
+STUDIES_OUT = ROOT / "studies"
 SITE = "https://www.dotmind.org/"
 # Reference pages shown under "Tools you can use" on ideas.html. Thumbnails are screenshots in ideas/images/.
 TOOLS = [
@@ -28,9 +31,9 @@ TOOLS = [
      "Six agent roles, plus Learn, across every kind of resident interaction. See which role does what, row by row."),
     ("Example journey", "journey.html", "journey-thumb.jpg",
      "One interaction in detail: who does what at each step, from a resident’s first question to the decision."),
-    ("Open playbook", "playbook.html", "playbook-thumb.jpg",
-     "Five steps and fill-in templates for choosing and running your first agent. Free to copy and adapt."),
 ]
+PLAYBOOK_CARD = ("Open playbook", "playbook.html", "playbook-thumb.jpg",
+                 "Five steps and fill-in templates for choosing and running your first agent. Free to copy and adapt.")
 # Slug of the post to feature at the top of ideas.html. None features the newest.
 FEATURED = None
 
@@ -118,6 +121,12 @@ def render(lines):
             alt = html.escape(m.group(1))
             out.append(f'<figure style="margin: 8px 0"><img src="{html.escape(m.group(2))}" alt="{alt}" style="display: block; width: 100%; height: auto; border: 1px solid #E2E0D8; border-radius: 12px; background: #FFFFFF"></figure>')
             i += 1
+        elif line.startswith(">"):
+            note = []
+            while i < len(lines) and lines[i].startswith(">"):
+                note.append(lines[i].lstrip("> ").strip())
+                i += 1
+            out.append(f'<div role="note" style="padding: 18px 20px; border-left: 4px solid #C2410C; border-radius: 8px; background: #FFF4EC; font-size: 16px">{inline(" ".join(note))}</div>')
         elif line.startswith("|"):
             rows = []
             while i < len(lines) and lines[i].startswith("|"):
@@ -140,7 +149,7 @@ def render(lines):
             out.append(f'<{tag} style="margin: 0; padding-left: 24px">{lis}</{tag}>')
         else:
             para = []
-            while i < len(lines) and lines[i].strip() and not re.match(r"(#{2,3} |\||- |\d+\. |!\[)", lines[i]):
+            while i < len(lines) and lines[i].strip() and not re.match(r"(#{2,3} |\||- |\d+\. |!\[|>)", lines[i]):
                 para.append(lines[i].strip())
                 i += 1
             out.append(f'<p style="margin: 0">{inline(" ".join(para))}</p>')
@@ -159,7 +168,7 @@ def load(path):
     m = re.fullmatch(r"\*(.+) · (\w+ \d{1,2}, \d{4})\*", byline.strip())
     assert m, f"{path.name}: second line must be '*Author · Month D, YYYY*'"
     body = lines[lines.index(byline) + 1:]
-    paragraphs = [l.strip() for l in body if l.strip() and not re.match(r"(#|!\[|\||- |\d+\. )", l)]
+    paragraphs = [l.strip() for l in body if l.strip() and not re.match(r"(#|!\[|\||- |\d+\. |>)", l)]
     image = next((img.group(2) for l in body if (img := re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", l.strip()))), None)
     words = len(re.findall(r"\w+", " ".join(body)))
     return {
@@ -178,21 +187,26 @@ def load(path):
 
 def main():
     posts = sorted((load(p) for p in SRC.glob("*.md")), key=lambda p: p["date"], reverse=True)
-    OUT.mkdir(exist_ok=True)
-    for post in posts:
+    studies = sorted((load(p) for p in STUDIES_SRC.glob("*.md")), key=lambda p: p["date"], reverse=True)
+    write_articles(posts, OUT, "Ideas")
+    write_articles(studies, STUDIES_OUT, "Studio study")
+    (ROOT / "ideas.html").write_text(ideas_index(posts, studies), encoding="utf-8")
+    print(f"Built ideas.html, {len(posts)} posts in ideas/ and {len(studies)} studies in studies/")
+    build_playbook()
+
+
+def write_articles(items, out, eyebrow):
+    out.mkdir(exist_ok=True)
+    for post in items:
         body = f"""<article style="display: flex; flex-direction: column; gap: 18px; font-size: 18px; line-height: 1.65">
 <header style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
-<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Ideas</p>
-<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(post["title"])}</h1>
+<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">{eyebrow}</p>
+<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(re.sub(r"^Studio study: ", "", post["title"]))}</h1>
 <p style="margin: 0; font-size: 16px; color: #57554F">{html.escape(post["author"])} · <time datetime="{post["date"]:%Y-%m-%d}">{post["date_text"]}</time> · {post["minutes"]} min read</p>
 </header>
 {render(post["body"])}
 </article>"""
-        (OUT / f'{post["slug"]}.html').write_text(page(f'{post["title"]} — dotmind', post["summary"], "../", body), encoding="utf-8")
-
-    (ROOT / "ideas.html").write_text(ideas_index(posts), encoding="utf-8")
-    print(f"Built ideas.html and {len(posts)} posts in ideas/")
-    build_playbook()
+        (out / f'{post["slug"]}.html').write_text(page(f'{post["title"]} — dotmind', post["summary"], "../", body), encoding="utf-8")
 
 
 def meta(p):
@@ -206,7 +220,7 @@ def thumb(p, height):
     return f'''<img src="ideas/{html.escape(p["image"])}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: contain; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">'''
 
 
-def ideas_index(posts):
+def ideas_index(posts, studies):
     featured = next((p for p in posts if p["slug"] == FEATURED), posts[0])
     rest = [p for p in posts if p is not featured]
     lead = "".join(f'<p style="margin: 0; font-size: 18px; color: #3F3D38">{html.escape(t)}</p>' for t in featured["lead"])
@@ -238,12 +252,34 @@ def ideas_index(posts):
 </li>'''
         for title, href, image, text in TOOLS
     )
+    study_cards = "\n".join(
+        f'''<li style="display: flex; flex-direction: column; gap: 12px; background: #FFFFFF; border: 1px solid #E2E0D8; border-top: 4px solid #C2410C; border-radius: 20px; padding: 24px">
+<p style="margin: 0; font-size: 15px; color: #57554F"><span style="font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Studio study</span> · {meta(p)}</p>
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="studies/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(re.sub(r"^Studio study: ", "", p["title"]))}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
+<a href="studies/{p["slug"]}.html" style="font-size: 16px; font-weight: 500">Read the study<span style="position: absolute; left: -10000px">: {html.escape(p["title"])}</span></a>
+</li>'''
+        for p in studies
+    ) + f'''
+<li style="display: flex; flex-direction: column; gap: 12px; background: #121417; color: #F7F6F2; border-radius: 20px; padding: 24px">
+<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 120px; object-fit: cover; object-position: top left; border-radius: 10px">
+<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #CFCCC3">Do it yourself</p>
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #F7F6F2; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #CFCCC3; flex: 1">{PLAYBOOK_CARD[3]}</p>
+<a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500; color: #F7F6F2">Open the playbook</a>
+</li>'''
     intro = "How we think about AI agents in public services: where to start, how to keep them fair and safe, and how states stay in control."
     body = f'''<header style="display: flex; flex-direction: column; gap: 10px; max-width: 760px">
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Ideas</h1>
 <p style="margin: 0; font-size: 19px; color: #3F3D38">{intro}</p>
 </header>
 {feature}
+<section id="studies" aria-labelledby="studies-title" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px; max-width: 760px"><h2 id="studies-title" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">Studio studies</h2><p style="margin: 0; font-size: 17px; color: #3F3D38">How our agent roles could work on real public services, and the playbook to try it on your own. Studies are built only from what agencies publish; they aren’t commissioned projects or reviewed by the agencies.</p></div>
+<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+{study_cards}
+</ul>
+</section>
 <section aria-labelledby="more-ideas" style="display: flex; flex-direction: column; gap: 20px">
 <h2 id="more-ideas" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">More ideas</h2>
 <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">

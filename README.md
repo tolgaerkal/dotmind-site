@@ -10,6 +10,7 @@ Website for **dotmind**, the AI Service Studio for state government.
 - `roles.html` — agent roles matrix (six interaction types × six agent roles)
 - `journey.html` — example journey: applying for a service
 - `ideas.html` and `ideas/` — Ideas: posts on how we think about AI agents in public services
+- `studies/` — studio studies: how our roles could work on real services (from `content/studies/`, listed on `ideas.html`)
 - `playbook.html` — open playbook (CC BY 4.0) for agencies, with `playbook.md` and `playbook-worksheet.csv` downloads
 - `privacy.html`, `accessibility.html` — privacy notice and accessibility statement
 
@@ -47,6 +48,8 @@ Commit the generated HTML; Vercel serves it as-is.
    `*Your Name · November 26, 2026*`. Put diagrams in `ideas/images/` and reference them as `images/name.svg`.
 2. Run `python3 scripts/build_pages.py`.
 3. Commit and push.
+
+Studio studies work the same way: add a Markdown file to `content/studies/` and rebuild. A line starting with `> ` becomes a highlighted note.
 
 Posts are listed newest first by their byline date. The newest is featured at the top of `ideas.html`; to pin a different one, set `FEATURED` in `scripts/build_pages.py` to its slug. The page URL is the filename without the number prefix.
 
