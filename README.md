@@ -9,8 +9,9 @@ Website for **dotmind**, the AI Service Studio for state government.
 - `index.html` — homepage
 - `roles.html` — agent roles matrix (six interaction types × six agent roles)
 - `journey.html` — example journey: applying for a service
+- `ideas.html` and `ideas/` — Ideas: posts on how we think about AI agents in public services
 
-Plain static HTML with inline styles. No build step. Fonts load from Google Fonts.
+Plain static HTML with inline styles. No build step on deploy. Fonts load from Google Fonts.
 
 ## Run locally
 
@@ -39,3 +40,18 @@ then redeploy:
 - `CONTACT_FROM` — the sender, on a domain verified in Resend, e.g. `dotmind <hello@dotmind.org>`
 
 Replies go straight to the person who filled in the form. The form only works on Vercel; GitHub Pages can't run the function.
+
+## Ideas (posts)
+
+Posts are written in Markdown in `content/ideas/`, then turned into `ideas.html` and `ideas/*.html` by a small script.
+Commit the generated HTML; Vercel serves it as-is.
+
+1. Add a file like `content/ideas/06-my-post.md`. Start it with `# Title`, then a byline line
+   `*Your Name · November 26, 2026*`. Put diagrams in `ideas/images/` and reference them as `images/name.svg`.
+2. Run `python3 scripts/build_ideas.py`.
+3. Commit and push.
+
+Posts are listed newest first by their byline date. The page URL is the filename without the number prefix.
+
+Files in `content/ideas/drafts/` are not published. To publish one, move it up to `content/ideas/`
+(and any diagram it uses into `ideas/images/`), then rebuild.
