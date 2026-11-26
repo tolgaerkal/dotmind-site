@@ -135,11 +135,14 @@
 <div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 16px">
 <h2 style="margin: 0; font-family: Space Grotesk, Inter, sans-serif; font-weight: 600; font-size: clamp(32px, 4vw, 52px); letter-spacing: -0.02em; line-height: 1.05">Bring us a service.</h2>
 <p style="margin: 0; font-size: 19px; color: #FFF4EC">Tell us where people get stuck. We’ll come back within [RESPONSE TIME] to talk about whether we can help.</p></div>
-<form style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 18px; background: #FFFFFF; color: #121417; border-radius: 20px; padding: 32px">
-<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-name" style="font-weight: 600; font-size: 15px">Your name</label><input id="f-name" type="text" autocomplete="name" style="min-height: 48px; padding: 0 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
-<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-agency" style="font-weight: 600; font-size: 15px">Agency or team</label><input id="f-agency" type="text" autocomplete="organization" style="min-height: 48px; padding: 0 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
-<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-problem" style="font-weight: 600; font-size: 15px">Which service, and where do people get stuck?</label><textarea id="f-problem" rows="4" style="padding: 12px 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; resize: vertical"></textarea></div>
-<button type="button" style="min-height: 52px; border: 0; border-radius: 999px; background: #121417; color: #FFFFFF; font: inherit; font-weight: 600; font-size: 17px; cursor: pointer">Send to the studio</button>
+<form id="contact-form" action="/api/contact" method="post" style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 18px; background: #FFFFFF; color: #121417; border-radius: 20px; padding: 32px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-name" style="font-weight: 600; font-size: 15px">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" required style="min-height: 48px; padding: 0 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-email" style="font-weight: 600; font-size: 15px">Work email</label><input id="f-email" name="email" type="email" autocomplete="email" required style="min-height: 48px; padding: 0 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-agency" style="font-weight: 600; font-size: 15px">Agency or team</label><input id="f-agency" name="agency" type="text" autocomplete="organization" style="min-height: 48px; padding: 0 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; background: #FFFFFF"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="f-problem" style="font-weight: 600; font-size: 15px">Which service, and where do people get stuck?</label><textarea id="f-problem" name="problem" rows="4" required style="padding: 12px 14px; border: 1px solid #A9A69C; border-radius: 10px; font: inherit; font-size: 16px; resize: vertical"></textarea></div>
+<div aria-hidden="true" style="position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden"><label for="f-website">Website</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" style="min-height: 52px; border: 0; border-radius: 999px; background: #121417; color: #FFFFFF; font: inherit; font-weight: 600; font-size: 17px; cursor: pointer">Send to the studio</button>
+<p id="contact-status" role="status" aria-live="polite" style="margin: 0; font-size: 15px"></p>
 </form></div></section>
 
 <footer style="background: #121417; color: #CFCCC3">
@@ -149,5 +152,33 @@
 <a href="#journey" style="color: #CFCCC3">How it works</a><a href="#roles" style="color: #CFCCC3">Agent roles</a><a href="#trust" style="color: #CFCCC3">Safeguards</a><a href="https://dotmind.org" style="color: #CFCCC3">dotmind.org</a><a href="roles.html" style="color: #CFCCC3">Agent roles matrix</a><a href="journey.html" style="color: #CFCCC3">Example journey</a><a href="#top" style="color: #CFCCC3">Accessibility</a><a href="#top" style="color: #CFCCC3">Privacy</a>
 </nav></div></footer>
 </div>
+<script>
+document.getElementById('contact-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var form = e.target;
+  var button = form.querySelector('button[type="submit"]');
+  var status = document.getElementById('contact-status');
+  button.disabled = true;
+  status.style.color = '#57554F';
+  status.textContent = 'Sending…';
+  try {
+    var res = await fetch(form.action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    });
+    var data = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+    form.reset();
+    status.style.color = '#166534';
+    status.textContent = 'Thanks. Your message is with the studio.';
+  } catch (err) {
+    status.style.color = '#B91C1C';
+    status.textContent = err.message + ' Please try again.';
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>
 </body>
 </html>

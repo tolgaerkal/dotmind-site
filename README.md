@@ -32,4 +32,15 @@ python3 -m http.server 8000
 
 - Replace `[RESPONSE TIME]` in the contact section.
 - Replace the funding answer placeholder in the FAQ.
-- Connect the contact form to a form service or backend; it is currently design-only.
+
+## Contact form
+
+The form posts to `api/contact.js`, a Vercel serverless function that emails each submission through
+[Resend](https://resend.com). Set these environment variables in Vercel (**Settings → Environment Variables**),
+then redeploy:
+
+- `RESEND_API_KEY` — your Resend API key
+- `CONTACT_TO` — where submissions go (comma-separate several addresses)
+- `CONTACT_FROM` — the sender, on a domain verified in Resend, e.g. `dotmind <hello@dotmind.org>`
+
+Replies go straight to the person who filled in the form. The form only works on Vercel; GitHub Pages can't run the function.
