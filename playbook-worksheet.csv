@@ -1,0 +1,11 @@
+Interaction,Volume per month,Where people get stuck,Potential (1-4),Complexity (1-4),Readiness (potential minus complexity),How we would measure success
+Example: license renewal,12000,1 in 4 submissions missing a document,4,2,=D2-E2,Halve incomplete submissions
+,,,,,=D3-E3,
+,,,,,=D4-E4,
+,,,,,=D5-E5,
+,,,,,=D6-E6,
+,,,,,=D7-E7,
+,,,,,=D8-E8,
+,,,,,=D9-E9,
+,,,,,=D10-E10,
+,,,,,=D11-E11,

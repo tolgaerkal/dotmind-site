@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Build the Ideas section from Markdown.
+"""Build the Ideas section and the open playbook from Markdown.
 
 Reads content/ideas/*.md and writes ideas.html (the list) and ideas/<slug>.html (one page per post).
-Each post starts with "# Title" and a "*Author · Month D, YYYY*" byline. Run from the repo root:
+Each post starts with "# Title" and a "*Author · Month D, YYYY*" byline.
 
-    python3 scripts/build_ideas.py
+Reads content/playbook.md and writes playbook.html, plus playbook.md (a downloadable copy with
+absolute links). Run from the repo root:
+
+    python3 scripts/build_pages.py
 
 Only standard library, and only the Markdown the posts use: headings, paragraphs, lists, tables,
-images on their own line, **bold**, *italic* and [links](url).
+### subheadings, images on their own line, **bold**, *italic* and [links](url).
 """
 
 import html
@@ -18,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "content" / "ideas"
 OUT = ROOT / "ideas"
+SITE = "https://www.dotmind.org/"
 
 GTM_HEAD = """<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -38,7 +42,7 @@ DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-l
 ) + "</span>"
 
 
-def page(title, description, prefix, body):
+def page(title, description, prefix, body, nav=("ideas.html", "All ideas"), width=760):
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -50,18 +54,18 @@ def page(title, description, prefix, body):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap">
-<style>body{{margin:0}}a{{color:#C2410C}}a:hover{{color:#9A3412}}</style>
+<style>body{{margin:0}}a{{color:#C2410C}}a:hover{{color:#9A3412}}@media print{{.no-print{{display:none!important}}body *{{background:none!important}}table{{min-width:0!important;font-size:12px!important}}}}</style>
 </head>
 <body>
 {GTM_BODY}
 <div style="font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; color: #121417; background: #F7F6F2; line-height: 1.5; min-height: 100vh">
-<div style="max-width: 760px; margin: 0 auto; padding: 56px 24px 80px; display: flex; flex-direction: column; gap: 28px">
-<nav aria-label="Site" style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px">
+<div style="max-width: {width}px; margin: 0 auto; padding: 56px 24px 80px; display: flex; flex-direction: column; gap: 28px">
+<nav aria-label="Site" class="no-print" style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px">
 <a href="{prefix}index.html" style="display: flex; align-items: baseline; gap: 6px; {DISPLAY}; font-weight: 600; font-size: 22px; color: #121417; text-decoration: none">dotmind{DOTS}</a>
-<a href="{prefix}ideas.html" style="font-size: 16px">All ideas</a>
+<a href="{prefix}{nav[0]}" style="font-size: 16px">{nav[1]}</a>
 </nav>
 {body}
-<p style="margin: 24px 0 0; padding-top: 24px; border-top: 1px solid #E2E0D8; font-size: 16px"><a href="{prefix}index.html#contact" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 500">Bring us a service</a></p>
+<p class="no-print" style="margin: 24px 0 0; padding-top: 24px; border-top: 1px solid #E2E0D8; font-size: 16px"><a href="{prefix}index.html#contact" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 500">Bring us a service</a></p>
 </div>
 </div>
 </body>
@@ -96,6 +100,9 @@ def render(lines):
         elif line.startswith("## "):
             out.append(f'<h2 style="margin: 28px 0 0; {DISPLAY}; font-weight: 600; font-size: 26px; letter-spacing: -0.01em; line-height: 1.2">{inline(line[3:])}</h2>')
             i += 1
+        elif line.startswith("### "):
+            out.append(f'<h3 style="margin: 12px 0 0; {DISPLAY}; font-weight: 600; font-size: 20px; line-height: 1.25">{inline(line[4:])}</h3>')
+            i += 1
         elif m := re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", line.strip()):
             alt = html.escape(m.group(1))
             out.append(f'<figure style="margin: 8px 0"><img src="{html.escape(m.group(2))}" alt="{alt}" style="display: block; width: 100%; height: auto; border: 1px solid #E2E0D8; border-radius: 12px; background: #FFFFFF"></figure>')
@@ -105,10 +112,10 @@ def render(lines):
             while i < len(lines) and lines[i].startswith("|"):
                 rows.append(cells(lines[i]))
                 i += 1
-            head, body = rows[0], [r for r in rows[1:] if not all(set(c) <= set("-: ") for c in r)]
+            head, body = rows[0], [r for r in rows[1:] if not all(c and set(c) <= set("-: ") for c in r)]
             th = "".join(f'<th scope="col" style="text-align: left; padding: 10px 12px; background: #ECEAE4; font-weight: 600">{inline(c)}</th>' for c in head)
             trs = "".join(
-                "<tr>" + "".join(f'<td style="padding: 10px 12px; border-top: 1px solid #E2E0D8; vertical-align: top">{inline(c)}</td>' for c in r) + "</tr>"
+                "<tr>" + "".join(f'<td style="padding: 10px 12px; height: 24px; border-top: 1px solid #E2E0D8; vertical-align: top">{inline(c) or "&nbsp;"}</td>' for c in r) + "</tr>"
                 for r in body
             )
             out.append(f'<div style="overflow-x: auto"><table style="width: 100%; min-width: 520px; border-collapse: collapse; font-size: 16px; background: #FFFFFF; border: 1px solid #E2E0D8"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>')
@@ -122,7 +129,7 @@ def render(lines):
             out.append(f'<{tag} style="margin: 0; padding-left: 24px">{lis}</{tag}>')
         else:
             para = []
-            while i < len(lines) and lines[i].strip() and not re.match(r"(## |\||- |\d+\. |!\[)", lines[i]):
+            while i < len(lines) and lines[i].strip() and not re.match(r"(#{2,3} |\||- |\d+\. |!\[)", lines[i]):
                 para.append(lines[i].strip())
                 i += 1
             out.append(f'<p style="margin: 0">{inline(" ".join(para))}</p>')
@@ -186,6 +193,34 @@ def main():
 </ul>"""
     (ROOT / "ideas.html").write_text(page("dotmind — Ideas", intro, "", body), encoding="utf-8")
     print(f"Built ideas.html and {len(posts)} posts in ideas/")
+    build_playbook()
+
+
+def build_playbook():
+    source = (ROOT / "content" / "playbook.md").read_text(encoding="utf-8")
+    lines = source.splitlines()
+    assert lines[0].startswith("# "), "playbook.md: first line must be '# Title'"
+    title = lines[0][2:].strip()
+    summary = plain(next(l for l in lines[1:] if l.strip()))
+    download = (
+        '<p class="no-print" style="margin: 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 16px">'
+        '<a href="playbook.md" download>Download as Markdown</a>'
+        '<a href="playbook-worksheet.csv" download>Download the scoring worksheet (CSV)</a>'
+        '<button type="button" onclick="window.print()" style="padding: 0; border: 0; background: none; font: inherit; color: #C2410C; text-decoration: underline; cursor: pointer">Print or save as PDF</button></p>'
+    )
+    body = f"""<main style="display: flex; flex-direction: column; gap: 18px; font-size: 18px; line-height: 1.65">
+<header style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
+<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Open playbook</p>
+<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(title)}</h1>
+</header>
+{download}
+{render(lines[1:])}
+</main>"""
+    (ROOT / "playbook.html").write_text(page(f"{title} — dotmind", summary, "", body, nav=("ideas.html", "Ideas"), width=960), encoding="utf-8")
+    # The downloadable copy travels on its own, so point its links at the live site.
+    absolute = re.sub(r"\]\((?!https?:|#|mailto:)([^)]+)\)", lambda m: f"]({SITE}{m.group(1)})", source)
+    (ROOT / "playbook.md").write_text(absolute, encoding="utf-8")
+    print("Built playbook.html and playbook.md")
 
 
 if __name__ == "__main__":
