@@ -225,10 +225,14 @@ def meta(p):
 
 
 def thumb(p, height):
-    if not p["image"]:
-        # Posts without a diagram get a plain brand panel, so the grid stays even.
-        return f'''<div aria-hidden="true" style="height: {height}px; border-radius: 12px; background: #FFF4EC; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box"><span style="display: inline-flex; gap: 6px">{'<span style="width: 10px; height: 10px; background: #C2410C"></span>' * 3}</span></div>'''
-    return f'''<img src="ideas/{html.escape(p["image"])}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: contain; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">'''
+    # Listing image: the abstract hero in ideas/images/heroes/<slug>.svg if there is one,
+    # else the post's first diagram, else a plain brand panel so the grid stays even.
+    hero = f'ideas/images/heroes/{p["slug"]}.svg'
+    if (ROOT / hero).exists():
+        return f'''<img src="{hero}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: cover; border-radius: 12px">'''
+    if p["image"]:
+        return f'''<img src="ideas/{html.escape(p["image"])}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: contain; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">'''
+    return f'''<div aria-hidden="true" style="height: {height}px; border-radius: 12px; background: #FFF4EC; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box"><span style="display: inline-flex; gap: 6px">{'<span style="width: 10px; height: 10px; background: #C2410C"></span>' * 3}</span></div>'''
 
 
 TAGS = {
@@ -272,7 +276,8 @@ def studio_index(posts, studies):
 </div>
 </article>'''
     study_cards = "\n".join(
-        f'''<li style="display: flex; flex-direction: column; gap: 12px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 24px">
+        f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
+{thumb(p, 200)}
 {tag_line("Study", f"<span>{meta(p)}</span>")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="studies/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(re.sub(r"^Studio study: ", "", p["title"]))}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
