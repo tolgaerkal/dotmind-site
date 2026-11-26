@@ -22,6 +22,15 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "content" / "ideas"
 OUT = ROOT / "ideas"
 SITE = "https://www.dotmind.org/"
+# Reference pages shown under "Tools you can use" on ideas.html. Thumbnails are screenshots in ideas/images/.
+TOOLS = [
+    ("Agent roles matrix", "roles.html", "roles-thumb.jpg",
+     "Six agent roles, plus Learn, across every kind of resident interaction. See which role does what, row by row."),
+    ("Example journey", "journey.html", "journey-thumb.jpg",
+     "One interaction in detail: who does what at each step, from a resident’s first question to the decision."),
+    ("Open playbook", "playbook.html", "playbook-thumb.jpg",
+     "Five steps and fill-in templates for choosing and running your first agent. Free to copy and adapt."),
+]
 # Slug of the post to feature at the top of ideas.html. None features the newest.
 FEATURED = None
 
@@ -220,6 +229,15 @@ def ideas_index(posts):
 </li>'''
         for p in rest
     )
+    tools = "\n".join(
+        f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
+<img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{href}" style="color: #121417; text-decoration: none">{title}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(text)}</p>
+<a href="{href}" style="font-size: 16px; font-weight: 500">Open<span style="position: absolute; left: -10000px"> the {title.lower()}</span></a>
+</li>'''
+        for title, href, image, text in TOOLS
+    )
     intro = "How we think about AI agents in public services: where to start, how to keep them fair and safe, and how states stay in control."
     body = f'''<header style="display: flex; flex-direction: column; gap: 10px; max-width: 760px">
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Ideas</h1>
@@ -232,9 +250,11 @@ def ideas_index(posts):
 {cards}
 </ul>
 </section>
-<section style="background: #121417; color: #F7F6F2; border-radius: 20px; padding: 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
-<div style="display: flex; flex-direction: column; gap: 6px; max-width: 620px"><h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">Put it into practice</h2><p style="margin: 0; font-size: 17px; color: #CFCCC3">Our open playbook turns these ideas into five steps and fill-in templates your agency can use. Free to copy and adapt.</p></div>
-<a href="playbook.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #F7F6F2; color: #121417; text-decoration: none; font-weight: 600">Open the playbook</a>
+<section aria-labelledby="tools" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px"><h2 id="tools" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">Tools you can use</h2><p style="margin: 0; font-size: 17px; color: #3F3D38">The practical side of these ideas, free to share inside your agency.</p></div>
+<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+{tools}
+</ul>
 </section>'''
     return page("dotmind — Ideas", intro, "", body, nav=("playbook.html", "Playbook"), width=1100)
 
