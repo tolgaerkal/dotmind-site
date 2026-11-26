@@ -206,6 +206,13 @@ def main():
     build_playbook()
 
 
+def banner(post):
+    hero = f'ideas/images/heroes/{post["slug"]}.svg'
+    if not (ROOT / hero).exists():
+        return ""
+    return f'''<img src="../{hero}" alt="" style="display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; max-height: 340px; object-fit: cover; border-radius: 16px">'''
+
+
 def write_articles(items, out, eyebrow):
     out.mkdir(exist_ok=True)
     for post in items:
@@ -215,6 +222,7 @@ def write_articles(items, out, eyebrow):
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(re.sub(r"^Studio study: ", "", post["title"]))}</h1>
 <p style="margin: 0; font-size: 16px; color: #57554F">{html.escape(post["author"])} · <time datetime="{post["date"]:%Y-%m-%d}">{post["date_text"]}</time> · {post["minutes"]} min read</p>
 </header>
+{banner(post)}
 {render(post["body"])}
 </article>"""
         (out / f'{post["slug"]}.html').write_text(page(f'{post["title"]} — dotmind', post["summary"], "../", body), encoding="utf-8")
