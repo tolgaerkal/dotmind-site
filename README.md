@@ -28,10 +28,6 @@ python3 -m http.server 8000
 4. The `CNAME` file sets the custom domain to `dotmind.org`. Point your domain's DNS at GitHub Pages
    (see GitHub's docs on configuring a custom domain), then tick **Enforce HTTPS** once it's available.
 
-## Before launch
-
-- Replace the funding answer placeholder in the FAQ.
-
 ## Contact form
 
 The form posts to `api/contact.js`, a Vercel serverless function that emails each submission through
