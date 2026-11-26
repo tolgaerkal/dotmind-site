@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Build the Ideas section and the open playbook from Markdown.
+"""Build Studio Studies (studies, ideas, playbook) from Markdown.
 
-Reads content/ideas/*.md and writes ideas.html (the list) and ideas/<slug>.html (one page per post).
-Reads content/studies/*.md and writes studies/<slug>.html; studies are listed on ideas.html too.
+Writes studies.html, the Studio Studies hub that lists everything below.
+Reads content/studies/*.md and writes studies/<slug>.html (one page per study).
+Reads content/ideas/*.md and writes ideas/<slug>.html (one page per idea post).
 Each post or study starts with "# Title" and a "*Author · Month D, YYYY*" byline.
 
 Reads content/playbook.md and writes playbook.html, plus playbook.md (a downloadable copy with
@@ -25,7 +26,7 @@ OUT = ROOT / "ideas"
 STUDIES_SRC = ROOT / "content" / "studies"
 STUDIES_OUT = ROOT / "studies"
 SITE = "https://www.dotmind.org/"
-# Reference pages shown under "Tools you can use" on ideas.html. Thumbnails are screenshots in ideas/images/.
+# Reference pages shown under "Playbook and tools" on studies.html. Thumbnails are screenshots in ideas/images/.
 TOOLS = [
     ("Agent roles matrix", "roles.html", "roles-thumb.jpg",
      "Six agent roles, plus Learn, across every kind of resident interaction. See which role does what, row by row."),
@@ -34,7 +35,7 @@ TOOLS = [
 ]
 PLAYBOOK_CARD = ("Open playbook", "playbook.html", "playbook-thumb.jpg",
                  "Five steps and fill-in templates for choosing and running your first agent. Free to copy and adapt.")
-# Slug of the post to feature at the top of ideas.html. None features the newest.
+# Slug of the idea post to feature at the top of studies.html. None features the newest.
 FEATURED = None
 
 GTM_HEAD = """<!-- Google Tag Manager -->
@@ -56,7 +57,7 @@ DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-l
 ) + "</span>"
 
 
-def page(title, description, prefix, body, nav=("ideas.html", "All ideas"), width=760):
+def page(title, description, prefix, body, nav=("studies.html", "Studio Studies"), width=760):
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -190,8 +191,8 @@ def main():
     studies = sorted((load(p) for p in STUDIES_SRC.glob("*.md")), key=lambda p: p["date"], reverse=True)
     write_articles(posts, OUT, "Ideas")
     write_articles(studies, STUDIES_OUT, "Studio study")
-    (ROOT / "ideas.html").write_text(ideas_index(posts, studies), encoding="utf-8")
-    print(f"Built ideas.html, {len(posts)} posts in ideas/ and {len(studies)} studies in studies/")
+    (ROOT / "studies.html").write_text(studio_index(posts, studies), encoding="utf-8")
+    print(f"Built studies.html, {len(studies)} studies in studies/ and {len(posts)} posts in ideas/")
     build_playbook()
 
 
@@ -220,79 +221,91 @@ def thumb(p, height):
     return f'''<img src="ideas/{html.escape(p["image"])}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: contain; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">'''
 
 
-def ideas_index(posts, studies):
+TAGS = {
+    "Study": ("#C2410C", "#FFFFFF"),
+    "Idea": ("#FFE4D3", "#8A2E08"),
+    "Playbook": ("#F7F6F2", "#121417"),
+    "Tool": ("#ECEAE4", "#3F3D38"),
+}
+
+
+def tag(kind):
+    background, color = TAGS[kind]
+    return f'<span style="display: inline-block; padding: 3px 10px; border-radius: 999px; background: {background}; color: {color}; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.5">{kind}</span>'
+
+
+def tag_line(kind, extra, color="#57554F"):
+    return f'<p style="margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 15px; color: {color}">{tag(kind)}{extra}</p>'
+
+
+def section(anchor, title, text, items):
+    intro = f'<p style="margin: 0; font-size: 17px; color: #3F3D38">{text}</p>' if text else ""
+    return f'''<section id="{anchor}" aria-labelledby="{anchor}-title" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px; max-width: 760px"><h2 id="{anchor}-title" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">{title}</h2>{intro}</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+{items}
+</ul>
+</section>'''
+
+
+def studio_index(posts, studies):
     featured = next((p for p in posts if p["slug"] == FEATURED), posts[0])
     rest = [p for p in posts if p is not featured]
     lead = "".join(f'<p style="margin: 0; font-size: 18px; color: #3F3D38">{html.escape(t)}</p>' for t in featured["lead"])
     feature = f'''<article style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: center; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 32px">
 {thumb(featured, 320)}
 <div style="display: flex; flex-direction: column; gap: 14px">
-<p style="margin: 0; font-size: 15px; color: #57554F"><span style="font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Featured</span> · {meta(featured)}</p>
+{tag_line("Idea", f'<span style="font-weight: 600; color: #C2410C">Featured</span><span>{meta(featured)}</span>')}
 <h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; line-height: 1.1"><a href="ideas/{featured["slug"]}.html" style="color: #121417; text-decoration: none">{inline(featured["title"])}</a></h2>
 {lead}
 <a href="ideas/{featured["slug"]}.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 600">Read the post<span style="position: absolute; left: -10000px">: {html.escape(featured["title"])}</span></a>
 </div>
 </article>'''
-    cards = "\n".join(
+    study_cards = "\n".join(
+        f'''<li style="display: flex; flex-direction: column; gap: 12px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 24px">
+{tag_line("Study", f"<span>{meta(p)}</span>")}
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="studies/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(re.sub(r"^Studio study: ", "", p["title"]))}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
+<a href="studies/{p["slug"]}.html" style="font-size: 16px; font-weight: 500">Read the study<span style="position: absolute; left: -10000px">: {html.escape(p["title"])}</span></a>
+</li>'''
+        for p in studies
+    )
+    idea_cards = "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
 {thumb(p, 180)}
-<p style="margin: 0; font-size: 15px; color: #57554F">{meta(p)}</p>
+{tag_line("Idea", f"<span>{meta(p)}</span>")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="ideas/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(p["title"])}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
 <a href="ideas/{p["slug"]}.html" style="font-size: 16px; font-weight: 500">Read<span style="position: absolute; left: -10000px"> {html.escape(p["title"])}</span></a>
 </li>'''
         for p in rest
     )
-    tools = "\n".join(
+    tool_cards = f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #121417; color: #F7F6F2; border-radius: 20px; padding: 20px">
+<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border-radius: 12px">
+{tag_line("Playbook", "<span>Do it yourself</span>", "#CFCCC3")}
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #F7F6F2; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #CFCCC3; flex: 1">{PLAYBOOK_CARD[3]}</p>
+<a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500; color: #F7F6F2">Open the playbook</a>
+</li>''' + "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
 <img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+{tag_line("Tool", "")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{href}" style="color: #121417; text-decoration: none">{title}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(text)}</p>
 <a href="{href}" style="font-size: 16px; font-weight: 500">Open<span style="position: absolute; left: -10000px"> the {title.lower()}</span></a>
 </li>'''
         for title, href, image, text in TOOLS
     )
-    study_cards = "\n".join(
-        f'''<li style="display: flex; flex-direction: column; gap: 12px; background: #FFFFFF; border: 1px solid #E2E0D8; border-top: 4px solid #C2410C; border-radius: 20px; padding: 24px">
-<p style="margin: 0; font-size: 15px; color: #57554F"><span style="font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Studio study</span> · {meta(p)}</p>
-<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="studies/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(re.sub(r"^Studio study: ", "", p["title"]))}</a></h3>
-<p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
-<a href="studies/{p["slug"]}.html" style="font-size: 16px; font-weight: 500">Read the study<span style="position: absolute; left: -10000px">: {html.escape(p["title"])}</span></a>
-</li>'''
-        for p in studies
-    ) + f'''
-<li style="display: flex; flex-direction: column; gap: 12px; background: #121417; color: #F7F6F2; border-radius: 20px; padding: 24px">
-<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 120px; object-fit: cover; object-position: top left; border-radius: 10px">
-<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #CFCCC3">Do it yourself</p>
-<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #F7F6F2; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
-<p style="margin: 0; font-size: 16px; color: #CFCCC3; flex: 1">{PLAYBOOK_CARD[3]}</p>
-<a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500; color: #F7F6F2">Open the playbook</a>
-</li>'''
-    intro = "How we think about AI agents in public services: where to start, how to keep them fair and safe, and how states stay in control."
+    intro = "What we’re learning about AI agents in public services, shared openly: studies of real services, ideas on doing it well, and a playbook and tools your agency can use."
     body = f'''<header style="display: flex; flex-direction: column; gap: 10px; max-width: 760px">
-<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Ideas</h1>
+<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Studio Studies</h1>
 <p style="margin: 0; font-size: 19px; color: #3F3D38">{intro}</p>
 </header>
 {feature}
-<section id="studies" aria-labelledby="studies-title" style="display: flex; flex-direction: column; gap: 20px">
-<div style="display: flex; flex-direction: column; gap: 6px; max-width: 760px"><h2 id="studies-title" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">Studio studies</h2><p style="margin: 0; font-size: 17px; color: #3F3D38">How our agent roles could work on real public services, and the playbook to try it on your own. Studies are built only from what agencies publish; they aren’t commissioned projects or reviewed by the agencies.</p></div>
-<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
-{study_cards}
-</ul>
-</section>
-<section aria-labelledby="more-ideas" style="display: flex; flex-direction: column; gap: 20px">
-<h2 id="more-ideas" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">More ideas</h2>
-<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
-{cards}
-</ul>
-</section>
-<section aria-labelledby="tools" style="display: flex; flex-direction: column; gap: 20px">
-<div style="display: flex; flex-direction: column; gap: 6px"><h2 id="tools" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">Tools you can use</h2><p style="margin: 0; font-size: 17px; color: #3F3D38">The practical side of these ideas, free to share inside your agency.</p></div>
-<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
-{tools}
-</ul>
-</section>'''
-    return page("dotmind — Ideas", intro, "", body, nav=("playbook.html", "Playbook"), width=1100)
+{section("studies", "Studies", "How our agent roles could work on real public services. Built only from what agencies publish; not commissioned projects, and not reviewed or endorsed by the agencies.", study_cards)}
+{section("ideas", "Ideas", "", idea_cards)}
+{section("tools", "Playbook and tools", "Free to use, adapt and share inside your agency.", tool_cards)}'''
+    return page("Studio Studies — dotmind", intro, "", body, nav=("index.html#about", "About"), width=1100)
 
 
 def build_playbook():
@@ -315,7 +328,7 @@ def build_playbook():
 {download}
 {render(lines[1:])}
 </main>"""
-    (ROOT / "playbook.html").write_text(page(f"{title} — dotmind", summary, "", body, nav=("ideas.html", "Ideas"), width=960), encoding="utf-8")
+    (ROOT / "playbook.html").write_text(page(f"{title} — dotmind", summary, "", body, nav=("studies.html", "Studio Studies"), width=960), encoding="utf-8")
     # The downloadable copy travels on its own, so point its links at the live site.
     absolute = re.sub(r"\]\((?!https?:|#|mailto:)([^)]+)\)", lambda m: f"]({SITE}{m.group(1)})", source)
     (ROOT / "playbook.md").write_text(absolute, encoding="utf-8")

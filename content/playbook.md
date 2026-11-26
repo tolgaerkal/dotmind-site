@@ -146,6 +146,6 @@ When a gap appears, the agent’s owner reviews it and fixes the cause, whether 
 
 - [Agent roles matrix](roles.html): the six roles across every kind of resident interaction.
 - [Example journey](journey.html): who does what at each step of applying for a service.
-- [Ideas](ideas.html): longer posts on where to start, fairness, and what happens when an agent gets it wrong.
+- [Studio Studies](studies.html): studies of real services, and posts on where to start, fairness, and what happens when an agent gets it wrong.
 
 Want help working through it for one of your services? Discovery with us is free. [Bring us a service](index.html#contact).

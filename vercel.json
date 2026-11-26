@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/ideas.html", "destination": "/studies.html", "permanent": true },
+    { "source": "/ideas", "destination": "/studies.html", "permanent": true }
+  ]
+}

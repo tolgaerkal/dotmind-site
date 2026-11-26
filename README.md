@@ -9,8 +9,9 @@ Website for **dotmind**, the AI Service Studio for state government.
 - `index.html` — homepage
 - `roles.html` — agent roles matrix (six interaction types × six agent roles)
 - `journey.html` — example journey: applying for a service
-- `ideas.html` and `ideas/` — Ideas: posts on how we think about AI agents in public services
-- `studies/` — studio studies: how our roles could work on real services (from `content/studies/`, listed on `ideas.html`)
+- `studies.html` — Studio Studies hub: studies, ideas, the playbook and tools
+- `ideas/` — idea posts (the old `ideas.html` redirects to `studies.html`)
+- `studies/` — studies: how our roles could work on real services (from `content/studies/`)
 - `playbook.html` — open playbook (CC BY 4.0) for agencies, with `playbook.md` and `playbook-worksheet.csv` downloads
 - `privacy.html`, `accessibility.html` — privacy notice and accessibility statement
 
@@ -37,11 +38,11 @@ python3 -m http.server 8000
 The contact section links to `hello@dotmind.org` with a pre-filled subject and prompts. There is no form or backend.
 Clicks on any email link push a `contact_email_click` event to Google Tag Manager.
 
-## Ideas and the playbook
+## Studio Studies (studies, ideas and the playbook)
 
 The playbook is written in `content/playbook.md`; the same script builds `playbook.html` and a downloadable `playbook.md`.
 
-Posts are written in Markdown in `content/ideas/`, then turned into `ideas.html` and `ideas/*.html` by a small script.
+Posts are written in Markdown in `content/ideas/`, then turned into `ideas/*.html` (and listed on `studies.html`) by a small script.
 Commit the generated HTML; Vercel serves it as-is.
 
 1. Add a file like `content/ideas/06-my-post.md`. Start it with `# Title`, then a byline line
@@ -51,7 +52,7 @@ Commit the generated HTML; Vercel serves it as-is.
 
 Studio studies work the same way: add a Markdown file to `content/studies/` and rebuild. A line starting with `> ` becomes a highlighted note.
 
-Posts are listed newest first by their byline date. The newest is featured at the top of `ideas.html`; to pin a different one, set `FEATURED` in `scripts/build_pages.py` to its slug. The page URL is the filename without the number prefix.
+Posts are listed newest first by their byline date. The newest is featured at the top of `studies.html`; to pin a different one, set `FEATURED` in `scripts/build_pages.py` to its slug. The page URL is the filename without the number prefix.
 
 Files in `content/ideas/drafts/` are not published. To publish one, move it up to `content/ideas/`
 (and any diagram it uses into `ideas/images/`), then rebuild.
