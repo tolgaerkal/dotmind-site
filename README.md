@@ -30,7 +30,6 @@ python3 -m http.server 8000
 
 ## Before launch
 
-- Replace `[RESPONSE TIME]` in the contact section.
 - Replace the funding answer placeholder in the FAQ.
 
 ## Contact form
