@@ -22,6 +22,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "content" / "ideas"
 OUT = ROOT / "ideas"
 SITE = "https://www.dotmind.org/"
+# Slug of the post to feature at the top of ideas.html. None features the newest.
+FEATURED = None
 
 GTM_HEAD = """<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -148,14 +150,19 @@ def load(path):
     m = re.fullmatch(r"\*(.+) · (\w+ \d{1,2}, \d{4})\*", byline.strip())
     assert m, f"{path.name}: second line must be '*Author · Month D, YYYY*'"
     body = lines[lines.index(byline) + 1:]
-    summary = next(l for l in body if l.strip() and not l.startswith(("#", "!", "|", "-")))
+    paragraphs = [l.strip() for l in body if l.strip() and not re.match(r"(#|!\[|\||- |\d+\. )", l)]
+    image = next((img.group(2) for l in body if (img := re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", l.strip()))), None)
+    words = len(re.findall(r"\w+", " ".join(body)))
     return {
         "slug": re.sub(r"^\d+-", "", path.stem),
         "title": lines[0][2:].strip(),
         "author": m.group(1),
         "date": datetime.strptime(m.group(2), "%B %d, %Y"),
         "date_text": m.group(2),
-        "summary": plain(summary.strip()),
+        "summary": plain(paragraphs[0]),
+        "lead": [plain(t) for t in paragraphs[:2]],
+        "image": image,
+        "minutes": max(1, round(words / 230)),
         "body": body,
     }
 
@@ -168,32 +175,68 @@ def main():
 <header style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
 <p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Ideas</p>
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(post["title"])}</h1>
-<p style="margin: 0; font-size: 16px; color: #57554F">{html.escape(post["author"])} · <time datetime="{post["date"]:%Y-%m-%d}">{post["date_text"]}</time></p>
+<p style="margin: 0; font-size: 16px; color: #57554F">{html.escape(post["author"])} · <time datetime="{post["date"]:%Y-%m-%d}">{post["date_text"]}</time> · {post["minutes"]} min read</p>
 </header>
 {render(post["body"])}
 </article>"""
         (OUT / f'{post["slug"]}.html').write_text(page(f'{post["title"]} — dotmind', post["summary"], "../", body), encoding="utf-8")
 
+    (ROOT / "ideas.html").write_text(ideas_index(posts), encoding="utf-8")
+    print(f"Built ideas.html and {len(posts)} posts in ideas/")
+    build_playbook()
+
+
+def meta(p):
+    return f'''<time datetime="{p["date"]:%Y-%m-%d}">{p["date_text"]}</time> · {p["minutes"]} min read'''
+
+
+def thumb(p, height):
+    if not p["image"]:
+        # Posts without a diagram get a plain brand panel, so the grid stays even.
+        return f'''<div aria-hidden="true" style="height: {height}px; border-radius: 12px; background: #FFF4EC; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box"><span style="display: inline-flex; gap: 6px">{'<span style="width: 10px; height: 10px; background: #C2410C"></span>' * 3}</span></div>'''
+    return f'''<img src="ideas/{html.escape(p["image"])}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: contain; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">'''
+
+
+def ideas_index(posts):
+    featured = next((p for p in posts if p["slug"] == FEATURED), posts[0])
+    rest = [p for p in posts if p is not featured]
+    lead = "".join(f'<p style="margin: 0; font-size: 18px; color: #3F3D38">{html.escape(t)}</p>' for t in featured["lead"])
+    feature = f'''<article style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: center; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 32px">
+{thumb(featured, 320)}
+<div style="display: flex; flex-direction: column; gap: 14px">
+<p style="margin: 0; font-size: 15px; color: #57554F"><span style="font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Featured</span> · {meta(featured)}</p>
+<h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; line-height: 1.1"><a href="ideas/{featured["slug"]}.html" style="color: #121417; text-decoration: none">{inline(featured["title"])}</a></h2>
+{lead}
+<a href="ideas/{featured["slug"]}.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 600">Read the post<span style="position: absolute; left: -10000px">: {html.escape(featured["title"])}</span></a>
+</div>
+</article>'''
     cards = "\n".join(
-        f"""<li style="padding: 24px 0; border-top: 1px solid #E2E0D8; display: flex; flex-direction: column; gap: 8px">
-<time datetime="{p["date"]:%Y-%m-%d}" style="font-size: 15px; color: #57554F">{p["date_text"]}</time>
-<h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="ideas/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(p["title"])}</a></h2>
-<p style="margin: 0; font-size: 17px; color: #3F3D38">{html.escape(p["summary"])}</p>
-<a href="ideas/{p["slug"]}.html" style="font-size: 16px; font-weight: 500">Read more<span style="position: absolute; left: -10000px"> about {html.escape(p["title"])}</span></a>
-</li>"""
-        for p in posts
+        f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
+{thumb(p, 180)}
+<p style="margin: 0; font-size: 15px; color: #57554F">{meta(p)}</p>
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="ideas/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(p["title"])}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
+<a href="ideas/{p["slug"]}.html" style="font-size: 16px; font-weight: 500">Read<span style="position: absolute; left: -10000px"> {html.escape(p["title"])}</span></a>
+</li>'''
+        for p in rest
     )
     intro = "How we think about AI agents in public services: where to start, how to keep them fair and safe, and how states stay in control."
-    body = f"""<header style="display: flex; flex-direction: column; gap: 10px">
+    body = f'''<header style="display: flex; flex-direction: column; gap: 10px; max-width: 760px">
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Ideas</h1>
 <p style="margin: 0; font-size: 19px; color: #3F3D38">{intro}</p>
 </header>
-<ul style="list-style: none; margin: 0; padding: 0">
+{feature}
+<section aria-labelledby="more-ideas" style="display: flex; flex-direction: column; gap: 20px">
+<h2 id="more-ideas" style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">More ideas</h2>
+<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
 {cards}
-</ul>"""
-    (ROOT / "ideas.html").write_text(page("dotmind — Ideas", intro, "", body), encoding="utf-8")
-    print(f"Built ideas.html and {len(posts)} posts in ideas/")
-    build_playbook()
+</ul>
+</section>
+<section style="background: #121417; color: #F7F6F2; border-radius: 20px; padding: 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px; max-width: 620px"><h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 26px">Put it into practice</h2><p style="margin: 0; font-size: 17px; color: #CFCCC3">Our open playbook turns these ideas into five steps and fill-in templates your agency can use. Free to copy and adapt.</p></div>
+<a href="playbook.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #F7F6F2; color: #121417; text-decoration: none; font-weight: 600">Open the playbook</a>
+</section>'''
+    return page("dotmind — Ideas", intro, "", body, nav=("playbook.html", "Playbook"), width=1100)
 
 
 def build_playbook():

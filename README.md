@@ -48,7 +48,7 @@ Commit the generated HTML; Vercel serves it as-is.
 2. Run `python3 scripts/build_pages.py`.
 3. Commit and push.
 
-Posts are listed newest first by their byline date. The page URL is the filename without the number prefix.
+Posts are listed newest first by their byline date. The newest is featured at the top of `ideas.html`; to pin a different one, set `FEATURED` in `scripts/build_pages.py` to its slug. The page URL is the filename without the number prefix.
 
 Files in `content/ideas/drafts/` are not published. To publish one, move it up to `content/ideas/`
 (and any diagram it uses into `ideas/images/`), then rebuild.
