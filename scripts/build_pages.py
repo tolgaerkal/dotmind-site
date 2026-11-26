@@ -246,7 +246,7 @@ def thumb(p, height):
 TAGS = {
     "Study": ("#C2410C", "#FFFFFF"),
     "Idea": ("#FFE4D3", "#8A2E08"),
-    "Playbook": ("#F7F6F2", "#121417"),
+    "Playbook": ("#121417", "#FFFFFF"),
     "Tool": ("#ECEAE4", "#3F3D38"),
 }
 
@@ -310,12 +310,12 @@ def studio_index(posts, studies):
 </li>'''
         for p in rest
     )
-    tool_cards = f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #121417; color: #F7F6F2; border-radius: 20px; padding: 20px">
-<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border-radius: 12px">
-{tag_line("Playbook", "<span>Do it yourself</span>", "#CFCCC3")}
-<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #F7F6F2; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
-<p style="margin: 0; font-size: 16px; color: #CFCCC3; flex: 1">{PLAYBOOK_CARD[3]}</p>
-<a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500; color: #F7F6F2">Open the playbook</a>
+    tool_cards = f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
+<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+{tag_line("Playbook", "<span>Do it yourself</span>")}
+<h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #121417; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
+<p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{PLAYBOOK_CARD[3]}</p>
+<a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500">Open the playbook</a>
 </li>''' + "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
 <img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
