@@ -9,7 +9,7 @@ Website for **dotmind**, the AI Service Studio for state government.
 - `index.html` — homepage
 - `roles.html` — agent roles matrix (six interaction types × six agent roles)
 - `journey.html` — example journey: applying for a service
-- `studies.html` — Studio Studies hub: studies, ideas, the playbook and tools
+- `studies.html` — Studio studies hub: studies, ideas, the playbook and tools
 - `ideas/` — idea posts (the old `ideas.html` redirects to `studies.html`)
 - `studies/` — studies: how our roles could work on real services (from `content/studies/`)
 - `playbook.html` — open playbook (CC BY 4.0) for agencies, with `playbook.md` and `playbook-worksheet.csv` downloads
@@ -38,7 +38,7 @@ python3 -m http.server 8000
 The contact section links to `hello@dotmind.org` with a pre-filled subject and prompts. There is no form or backend.
 Clicks on any email link push a `contact_email_click` event to Google Tag Manager.
 
-## Studio Studies (studies, ideas and the playbook)
+## Studio studies (studies, ideas and the playbook)
 
 The playbook is written in `content/playbook.md`; the same script builds `playbook.html` and a downloadable `playbook.md`.
 

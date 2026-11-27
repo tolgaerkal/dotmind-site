@@ -1,8 +1,14 @@
 # Your first AI agent: an open playbook for public services
 
-A short, practical guide for state agencies deciding where to use AI agents, and how to do it safely. Use it with your own team, with us, or with any vendor.
+*v1.0 · November 2026 · by [Tolga Erkal](https://www.linkedin.com/in/tolgaerkal/), dotmind*
 
-**Free to use.** This playbook is published under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Copy it, adapt it for your agency and share it. Please credit dotmind.
+A short, practical guide for US state agencies deciding where to use AI agents, and how to do it safely. It's useful for any public-service team. Use it with your own team, with us, or with any vendor.
+
+**Free and open.** Use it, adapt it, share it.
+
+This playbook is published under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Copy it, adapt it for your agency and share it. Please credit dotmind.
+
+**How to cite:** dotmind (2026). *Your first AI agent: an open playbook for public services*, v1.0. dotmind.org/playbook.html
 
 ## How to use this playbook
 
@@ -15,6 +21,11 @@ Work through the five steps in order. Each one ends with a template you can fill
 5. Measure fairness and quality
 
 The principle behind every step: **agents gather, check and prepare. People decide.**
+
+**Worked examples.** Each template is filled in using two dotmind [studio studies](https://www.dotmind.org/studies.html). They're illustrations built from what the agencies publish, not real projects: no agency data was used, and the agencies haven't reviewed or endorsed them.
+
+- **Study A: [Getting a REAL ID at the Delaware DMV](https://www.dotmind.org/studies/delaware-dmv-real-id.html).** Residents arrive missing documents or with name mismatches. Agents pre-check documents from home. A clerk still checks the originals and issues the card.
+- **Study B: [Applying for SNAP food benefits through Delaware DHSS](https://www.dotmind.org/studies/delaware-snap.html).** Applications arrive incomplete and interviews get missed. Agents help gather documents and prepare for the interview. A caseworker makes every eligibility decision.
 
 ## Step 1. Pick where to start
 
@@ -33,8 +44,15 @@ Start where the work is high-volume, rule-based and already digital, not where t
 | Interaction | Volume per month | Where people get stuck | Potential (1–4) | Complexity (1–4) | Readiness | How we’d measure success |
 | --- | --- | --- | --- | --- | --- | --- |
 | Example: license renewal | 12,000 | 1 in 4 submissions missing a document | 4 | 2 | 2 | Halve incomplete submissions |
+| Study A: REAL ID at the DMV | Use your own data | Missing documents and name mismatches found at the counter | 4 | 2 | 2 | Fewer repeat visits for wrong or missing documents |
+| Study B: SNAP application | Use your own data | Missing pay stubs and missed interview calls | 4 | 3 | 1 | Fewer requests for missing documents per case |
 | | | | | | | |
 | | | | | | | |
+
+*Example from a studio study (not a real project).* Why we scored them this way:
+
+- **Study A, REAL ID (readiness 2).** The document rules are published and stable, and the agent only advises, so complexity stays low. It isn't a 1 because the agent reads photos of identity documents.
+- **Study B, SNAP (readiness 1).** High value: missing documents and missed interviews delay food help for families. But income rules, sensitive household data and federal deadlines make it more complex, so the agent should stick to gathering, checking and preparing.
 
 Good first candidates usually look like answering questions from official guidance, booking appointments, or checking documents at upload. Policy planning and workforce changes are better left until you have experience.
 
@@ -66,6 +84,20 @@ Don’t build one agent per service. Almost every resident interaction uses the 
 
 Leave a role blank if the service doesn’t need it. If you can’t fill in “where a person decides,” the design isn’t ready.
 
+### Example: Study B, SNAP on one page
+
+*Example from a studio study (not a real project).*
+
+| Role | What it does in this service | Rules and documents it uses | Systems it can reach | Where a person decides |
+| --- | --- | --- | --- | --- |
+| Guide | Explains SNAP in plain words and runs the screening with the applicant, including what counts as household and income | DHSS’s published SNAP guidance and screening questions | Public guidance only | The applicant decides whether to apply. The agent never says someone doesn’t qualify, and anyone can submit the first page to lock in their filing date |
+| Collect | Builds a personal document checklist and takes photos of pay stubs, lease, childcare receipts and Social Security numbers | The documents DHSS lists for SNAP | The agency’s own application system, to upload documents. Nothing is stored by dotmind | The applicant chooses what to submit |
+| Verify | Matches each document to the form and flags gaps, such as a pay stub covering only 2 weeks or a lease with a different address | SNAP verification rules for income, residence and household | Reads documents in the application; can’t change the case | A caseworker reviews every flag, with the document behind it linked |
+| Prepare | Prepares a case summary for the caseworker (household, last 30 days’ income with each figure linked to its document, expenses) and a one-page interview summary for the applicant | The layout of the eligibility screen; approved notice templates | Reads the case; writes drafts only | The caseworker makes every eligibility decision and benefit amount, and edits and sends every notice |
+| Route | Moves households that may qualify for the 7-day expedited track to the top of the queue | Federal expedited-service criteria | The case queue | Staff confirm whether a case is expedited |
+| Communicate | Offers interview times that fit the applicant’s schedule, says which caller ID to expect, and sends plain-language status updates and renewal reminders | Approved messages in English, Spanish and Vietnamese | Interview scheduling and messaging | Staff approve every message template; decision notices come from the caseworker |
+| Learn | Spots where applications stall, and checks whether flags and expedited routing fall evenly across languages and household types | The measures in step 5 | Anonymized case data and timestamps | The agent’s owner and the program team decide what to change |
+
 ## Step 3. Set the guardrails
 
 Agree these before anything is built. They are what make an agent safe to trust.
@@ -73,7 +105,7 @@ Agree these before anything is built. They are what make an agent safe to trust.
 **What agents should not do**
 
 - Make final decisions about rights, benefits or penalties. An agent can recommend; a person decides and is accountable.
-- Do exact calculations by “judgment.” Amounts and fees come from fixed rules in ordinary software, which the agent calls as a tool.
+- Make judgment calls on anything that needs an exact calculation. Calculations follow written rules: amounts and fees come from ordinary software, which the agent calls as a tool.
 - Reach beyond its task. Give it only the systems and data the task needs.
 - Replace other ways to get help. Phone, mail and in-person routes stay open.
 - Work invisibly. Staff can see what it did and why, and residents know when they’re dealing with AI.
@@ -99,6 +131,20 @@ Agree these before anything is built. They are what make an agent safe to trust.
 | Non-digital routes that stay open | |
 | How residents challenge an outcome | |
 | Who can pause the agent, and the fallback process | |
+
+### Example: Study A, REAL ID guardrails sign-off
+
+*Example from a studio study (not a real project).*
+
+| Question | Our answer |
+| --- | --- |
+| Named owner in the agency who is accountable for this agent | A named DMV manager at the pilot location, such as the customer service lead. (No one is named here because this is a studio study.) |
+| Decisions only a person can make | Accepting any document, deciding whether someone gets a REAL ID, and issuing the card. The pre-check is advice only. |
+| Systems and data the agent can reach (and nothing else) | The photos the resident takes, which are checked on the device or deleted right after the check, and the DMV’s published document rules. No access to the licensing system. |
+| How residents are told they’re dealing with AI | The pre-check says it’s an automated assistant, that its advice isn’t a DMV decision, and that a clerk will check the originals. |
+| Non-digital routes that stay open | Residents can still walk in without a pre-check, and phone help stays available. |
+| How residents challenge an outcome | The pre-check makes no decisions, so there’s nothing to appeal from it. Counter decisions follow the DMV’s existing review process. When the agent is unsure, it says “bring it and ask at the counter,” never “you’ll be rejected.” |
+| Who can pause the agent, and the fallback process | The named owner can switch the pre-check off at any time. Residents then use the DMV’s published document guide, as they do today. |
 
 ## Step 4. Question any vendor or team
 
@@ -128,6 +174,20 @@ Fairness is designed in, not assumed. Test before launch on cases that reflect t
 | Appeals and complaints | Where residents feel the service got it wrong | | |
 | Your success measure from step 1 | Whether the agent is doing what it was for | | |
 
+### Example: Study B, SNAP targets
+
+*Example from a studio study (not a real project).* These targets are hypotheses a pilot would test, not results. A real pilot would set them with the agency during discovery.
+
+| Measure | Example target (hypothesis to test) | Who reviews it, and how often |
+| --- | --- | --- |
+| Flag rate by group | Flag rates within 5 percentage points across languages and household types | Agent owner and a program analyst, monthly |
+| Staff overrides | Caseworkers overrule fewer than 1 in 10 flags, with no group noticeably higher | Caseworker supervisors, weekly during the pilot |
+| Wrong flags | Fewer than 1 in 20 flags turn out to be mistaken | Agent owner, weekly |
+| Time to decision | Every case within the federal 30-day limit, expedited cases within 7 days, and no group waiting longer on average | Program manager, weekly |
+| Completion by channel | People applying by phone, on paper or in person complete as often as people online | Agent owner, monthly |
+| Appeals and complaints | No rise compared with the months before the pilot | Fair hearings team and agent owner, monthly |
+| Your success measure from step 1 | Fewer requests for missing documents per case than for applications without the pre-check | Pilot team, every two weeks |
+
 When a gap appears, the agent’s owner reviews it and fixes the cause, whether that’s the agent, the rules or the process around it. A rising number is a signal to investigate before it becomes a problem.
 
 ## Words you’ll hear
@@ -146,6 +206,14 @@ When a gap appears, the agent’s owner reviews it and fixes the cause, whether 
 
 - [Agent roles matrix](https://www.dotmind.org/roles.html): the six roles across every kind of resident interaction.
 - [Example journey](https://www.dotmind.org/journey.html): who does what at each step of applying for a service.
-- [Studio Studies](https://www.dotmind.org/studies.html): studies of real services, and posts on where to start, fairness, and what happens when an agent gets it wrong.
+- [Studio studies](https://www.dotmind.org/studies.html): studies of real services, and posts on where to start, fairness, and what happens when an agent gets it wrong.
 
 Want help working through it for one of your services? Discovery with us is free. [Bring us a service](https://www.dotmind.org/index.html#contact).
+
+Want a walkthrough of the playbook for your team? We run a free 45-minute session. [Email us to book one](mailto:hello@dotmind.org?subject=Playbook%20walkthrough).
+
+## Changelog
+
+| Version | Date | Changes |
+| --- | --- | --- |
+| v1.0 | November 27, 2026 | First public release |

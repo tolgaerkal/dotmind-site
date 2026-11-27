@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build Studio Studies (studies, ideas, playbook) from Markdown.
+"""Build Studio studies (studies, ideas, playbook) from Markdown.
 
-Writes studies.html, the Studio Studies hub that lists everything below.
+Writes studies.html, the Studio studies hub that lists everything below.
 Reads content/studies/*.md and writes studies/<slug>.html (one page per study).
 Reads content/ideas/*.md and writes ideas/<slug>.html (one page per idea post).
 Each post or study starts with "# Title" and a "*Author · Month D, YYYY*" byline.
@@ -46,11 +46,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-WQM5S88M');</script>
 <!-- End Google Tag Manager -->"""
 
-GTM_BODY = """<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WQM5S88M"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->"""
-
 DISPLAY = "font-family: Space Grotesk, Inter, sans-serif"
 DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-left: -2px">' + (
     '<span style="display: inline-block; width: 6px; height: 6px; background: #121417"></span>' * 3
@@ -58,14 +53,14 @@ DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-l
 
 
 def header(prefix, hub):
-    # Same header as index.html, with Studio Studies marked as the current section.
+    # Same header as index.html, with Studio studies marked as the current section.
     current = ' aria-current="page"' if hub else ""
     return f"""<header class="no-print" style="border-bottom: 1px solid #E2E0D8; background: #F7F6F2">
 <div style="max-width: 1200px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
 <a href="{prefix}index.html" style="display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: #121417; {DISPLAY}; font-weight: 600; font-size: 24px; letter-spacing: -0.02em">dotmind{DOTS}</a>
 <nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; font-size: 16px">
 <a href="{prefix}index.html#journey" style="color: #121417; text-decoration: none">How it works</a>
-<a href="{prefix}studies.html"{current} style="color: #121417; text-decoration: underline; text-decoration-color: #C2410C; text-decoration-thickness: 2px; text-underline-offset: 6px; font-weight: 600">Studio Studies</a>
+<a href="{prefix}studies.html"{current} style="color: #121417; text-decoration: underline; text-decoration-color: #C2410C; text-decoration-thickness: 2px; text-underline-offset: 6px; font-weight: 600">Studio studies</a>
 <a href="{prefix}index.html#about" style="color: #121417; text-decoration: none">About</a>
 </nav></div></header>"""
 
@@ -83,7 +78,7 @@ def footer(prefix):
     return re.sub(r'href="([^"]*)"', fix, markup).replace("<footer ", '<footer class="no-print" ', 1)
 
 
-def page(title, description, prefix, body, width=760, hub=False):
+def page(title, description, prefix, body, width=760, hub=False, head="", cta=""):
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -96,14 +91,13 @@ def page(title, description, prefix, body, width=760, hub=False):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap">
 <style>body{{margin:0}}a{{color:#C2410C}}a:hover{{color:#9A3412}}@media print{{.no-print{{display:none!important}}body *{{background:none!important}}table{{min-width:0!important;font-size:12px!important}}}}</style>
-</head>
+{head}</head>
 <body>
-{GTM_BODY}
 <div style="font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; color: #121417; background: #F7F6F2; line-height: 1.5; min-height: 100vh">
 {header(prefix, hub)}
 <div style="max-width: {width}px; margin: 0 auto; padding: 48px 24px 80px; display: flex; flex-direction: column; gap: 28px">
 {body}
-<p class="no-print" style="margin: 24px 0 0; padding-top: 24px; border-top: 1px solid #E2E0D8; font-size: 16px"><a href="{prefix}index.html#contact" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 500">Bring us a service</a></p>
+<p class="no-print" style="margin: 24px 0 0; padding-top: 24px; border-top: 1px solid #E2E0D8; font-size: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px"><a href="{prefix}index.html#contact" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 500">Bring us a service</a>{cta}</p>
 </div>
 {footer(prefix)}
 </div>
@@ -347,14 +341,33 @@ def studio_index(posts, studies):
     )
     intro = "What we’re learning about AI agents in public services, shared openly: studies of real services, ideas on doing it well, and a playbook and tools your agency can use."
     body = f'''<header style="display: flex; flex-direction: column; gap: 10px; max-width: 760px">
-<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Studio Studies</h1>
+<h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; line-height: 1.05">Studio studies</h1>
 <p style="margin: 0; font-size: 19px; color: #3F3D38">{intro}</p>
 </header>
 {feature}
 {section("studies", "Studies", "How our agent roles could work on real public services. Built only from what agencies publish; not commissioned projects, and not reviewed or endorsed by the agencies.", study_cards)}
 {section("ideas", "Ideas", "", idea_cards)}
 {section("tools", "Playbook and tools", "Free to use, adapt and share inside your agency.", tool_cards)}'''
-    return page("Studio Studies — dotmind", intro, "", body, width=1100, hub=True)
+    return page("Studio studies — dotmind", intro, "", body, width=1100, hub=True)
+
+
+PLAYBOOK_URL = f"{SITE}playbook.html"
+PLAYBOOK_IMAGE = f"{SITE}ideas/images/og-playbook.png"
+PLAYBOOK_PRINT = """<style>
+.print-only{display:none}
+@media print{
+  @page{margin:18mm}
+  .print-only{display:block}
+  .cover{min-height:85vh;display:flex;flex-direction:column;justify-content:center;gap:14px;break-after:page}
+  main{font-size:12pt!important;line-height:1.5!important}
+  h2,h3{break-after:avoid}
+  table,tr,figure{break-inside:avoid}
+  main a[href]::after{content:" (" attr(href) ")";font-size:0.85em;color:#57554F;word-break:break-all}
+  main a[href$=".html"]:not([href^="http"])::after,main a[href*=".html#"]:not([href^="http"])::after{content:" (dotmind.org/" attr(href) ")"}
+  main a[href^="#"]::after,main a[href^="mailto:"]::after{content:""}
+}
+</style>
+"""
 
 
 def build_playbook():
@@ -362,22 +375,52 @@ def build_playbook():
     lines = source.splitlines()
     assert lines[0].startswith("# "), "playbook.md: first line must be '# Title'"
     title = lines[0][2:].strip()
-    summary = plain(next(l for l in lines[1:] if l.strip()))
+    rest = lines[1:]
+    # An italic line straight after the title is the version line: "*v1.0 · Month YYYY · by ...*"
+    first = next(i for i, l in enumerate(rest) if l.strip())
+    version = ""
+    if re.fullmatch(r"\*v[\d.]+ ·.+\*", rest[first].strip()):
+        version = rest[first].strip().strip("*")
+        rest = rest[first + 1:]
+    summary = plain(next(l for l in rest if l.strip()))
     download = (
         '<p class="no-print" style="margin: 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 16px">'
         '<a href="playbook.md" download>Download as Markdown</a>'
         '<a href="playbook-worksheet.csv" download>Download the scoring worksheet (CSV)</a>'
         '<button type="button" onclick="window.print()" style="padding: 0; border: 0; background: none; font: inherit; color: #C2410C; text-decoration: underline; cursor: pointer">Print or save as PDF</button></p>'
     )
+    cover = f"""<div class="print-only cover">
+<p style="margin: 0; font-size: 12pt; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase">dotmind · Open playbook</p>
+<h1 style="margin: 0; {DISPLAY}; font-size: 30pt; line-height: 1.1">{inline(title)}</h1>
+<p style="margin: 0; font-size: 13pt">{html.escape(plain(version))}</p>
+<p style="margin: 0; font-size: 11pt">{PLAYBOOK_URL.replace("https://", "")} · Free to use under CC BY 4.0</p>
+</div>"""
+    byline = f'<p style="margin: 0; font-size: 16px; color: #57554F">{inline(version)}</p>' if version else ""
     body = f"""<main style="display: flex; flex-direction: column; gap: 18px; font-size: 18px; line-height: 1.65">
-<header style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
+{cover}
+<header class="no-print" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
 <p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #C2410C">Open playbook</p>
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(title)}</h1>
+{byline}
 </header>
 {download}
-{render(lines[1:])}
+{render(rest)}
 </main>"""
-    (ROOT / "playbook.html").write_text(page(f"{title} — dotmind", summary, "", body, width=960), encoding="utf-8")
+    og = f"""<meta property="og:type" content="article">
+<meta property="og:site_name" content="dotmind">
+<meta property="og:title" content="{html.escape(title)}">
+<meta property="og:description" content="{html.escape(summary)}">
+<meta property="og:url" content="{PLAYBOOK_URL}">
+<meta property="og:image" content="{PLAYBOOK_IMAGE}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{PLAYBOOK_URL}">
+"""
+    walkthrough = ('<span style="color: #3F3D38">Want a walkthrough of the playbook for your team? We run a free 45-minute session. '
+                   '<a href="mailto:hello@dotmind.org?subject=Playbook%20walkthrough">Book a walkthrough</a></span>')
+    (ROOT / "playbook.html").write_text(
+        page(f"{title} — dotmind", summary, "", body, width=960, head=og + PLAYBOOK_PRINT, cta=walkthrough), encoding="utf-8")
     # The downloadable copy travels on its own, so point its links at the live site.
     absolute = re.sub(r"\]\((?!https?:|#|mailto:)([^)]+)\)", lambda m: f"]({SITE}{m.group(1)})", source)
     (ROOT / "playbook.md").write_text(absolute, encoding="utf-8")

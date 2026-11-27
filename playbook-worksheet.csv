@@ -1,7 +1,7 @@
 Interaction,Volume per month,Where people get stuck,Potential (1-4),Complexity (1-4),Readiness (potential minus complexity),How we would measure success
 Example: license renewal,12000,1 in 4 submissions missing a document,4,2,=D2-E2,Halve incomplete submissions
-,,,,,=D3-E3,
-,,,,,=D4-E4,
+"Example from a studio study (not a real project): REAL ID at the Delaware DMV",Use your own data,Missing documents and name mismatches found at the counter,4,2,=D3-E3,Fewer repeat visits for wrong or missing documents
+"Example from a studio study (not a real project): SNAP application, Delaware DHSS",Use your own data,Missing pay stubs and missed interview calls,4,3,=D4-E4,Fewer requests for missing documents per case
 ,,,,,=D5-E5,
 ,,,,,=D6-E6,
 ,,,,,=D7-E7,
@@ -9,3 +9,5 @@ Example: license renewal,12000,1 in 4 submissions missing a document,4,2,=D2-E2,
 ,,,,,=D9-E9,
 ,,,,,=D10-E10,
 ,,,,,=D11-E11,
+,,,,,=D12-E12,
+,,,,,=D13-E13,
