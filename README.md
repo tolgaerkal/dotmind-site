@@ -52,6 +52,8 @@ Commit the generated HTML; Vercel serves it as-is.
 
 Each listing card shows an abstract hero image from `ideas/images/heroes/<slug>.svg` (the slug is the file name without its number). Without one, it falls back to the post's first diagram, then a plain panel.
 
+Every page except the homepage gets the homepage footer: generated pages copy it from `index.html` at build time; `roles.html`, `journey.html`, `privacy.html` and `accessibility.html` hold their own copy, so update those by hand if the footer changes.
+
 Studio studies work the same way: add a Markdown file to `content/studies/` and rebuild. A line starting with `> ` becomes a highlighted note.
 
 Posts are listed newest first by their byline date. The newest is featured at the top of `studies.html`; to pin a different one, set `FEATURED` in `scripts/build_pages.py` to its slug. The page URL is the filename without the number prefix.
