@@ -53,7 +53,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 DISPLAY = "font-family: Space Grotesk, Inter, sans-serif"
 DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-left: -2px">' + (
-    '<span style="display: inline-block; width: 6px; height: 6px; background: #4338CA"></span>' * 3
+    '<span style="display: inline-block; width: 6px; height: 6px; background: #0D0D0D"></span>' * 3
 ) + "</span>"
 
 
@@ -65,7 +65,7 @@ def header(prefix, hub):
 <a href="{prefix}index.html" style="display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: #0D0D0D; {DISPLAY}; font-weight: 600; font-size: 24px; letter-spacing: -0.02em">dotmind{DOTS}</a>
 <nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; font-size: 16px">
 <a href="{prefix}index.html#journey" style="color: #0D0D0D; text-decoration: none">How it works</a>
-<a href="{prefix}studies.html"{current} style="color: #0D0D0D; text-decoration: underline; text-decoration-color: #4338CA; text-decoration-thickness: 2px; text-underline-offset: 6px; font-weight: 600">Studio Studies</a>
+<a href="{prefix}studies.html"{current} style="color: #0D0D0D; text-decoration: underline; text-decoration-color: #0D0D0D; text-decoration-thickness: 2px; text-underline-offset: 6px; font-weight: 600">Studio Studies</a>
 <a href="{prefix}index.html#about" style="color: #0D0D0D; text-decoration: none">About</a>
 </nav></div></header>"""
 
@@ -82,7 +82,7 @@ def page(title, description, prefix, body, width=760, hub=False):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap">
-<style>body{{margin:0}}a{{color:#4338CA}}a:hover{{color:#3730A3}}@media print{{.no-print{{display:none!important}}body *{{background:none!important}}table{{min-width:0!important;font-size:12px!important}}}}</style>
+<style>body{{margin:0}}a{{color:#0D0D0D}}a:hover{{color:#45453F}}@media print{{.no-print{{display:none!important}}body *{{background:none!important}}table{{min-width:0!important;font-size:12px!important}}}}</style>
 </head>
 <body>
 {GTM_BODY}
@@ -137,7 +137,7 @@ def render(lines):
             while i < len(lines) and lines[i].startswith(">"):
                 note.append(lines[i].lstrip("> ").strip())
                 i += 1
-            out.append(f'<div role="note" style="padding: 18px 20px; border-left: 4px solid #4338CA; border-radius: 8px; background: #EEF0FF; font-size: 16px">{inline(" ".join(note))}</div>')
+            out.append(f'<div role="note" style="padding: 18px 20px; border-left: 4px solid #0D0D0D; border-radius: 8px; background: #FFFBD6; font-size: 16px">{inline(" ".join(note))}</div>')
         elif line.startswith("|"):
             rows = []
             while i < len(lines) and lines[i].startswith("|"):
@@ -218,7 +218,7 @@ def write_articles(items, out, eyebrow):
     for post in items:
         body = f"""<article style="display: flex; flex-direction: column; gap: 18px; font-size: 18px; line-height: 1.65">
 <header style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
-<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4338CA">{eyebrow}</p>
+<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #0D0D0D">{eyebrow}</p>
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(re.sub(r"^Studio study: ", "", post["title"]))}</h1>
 <p style="margin: 0; font-size: 16px; color: #45453F">{html.escape(post["author"])} · <time datetime="{post["date"]:%Y-%m-%d}">{post["date_text"]}</time> · {post["minutes"]} min read</p>
 </header>
@@ -240,20 +240,20 @@ def thumb(p, height):
         return f'''<img src="{hero}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: cover; border-radius: 12px">'''
     if p["image"]:
         return f'''<img src="ideas/{html.escape(p["image"])}" alt="" style="display: block; width: 100%; height: {height}px; object-fit: contain; background: #FFFFFF; border: 1px solid #1A1A1A; border-radius: 12px; box-sizing: border-box">'''
-    return f'''<div aria-hidden="true" style="height: {height}px; border-radius: 12px; background: #EEF0FF; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box"><span style="display: inline-flex; gap: 6px">{'<span style="width: 10px; height: 10px; background: #4338CA"></span>' * 3}</span></div>'''
+    return f'''<div aria-hidden="true" style="height: {height}px; border-radius: 12px; background: #FFFBD6; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box"><span style="display: inline-flex; gap: 6px">{'<span style="width: 10px; height: 10px; background: #0D0D0D"></span>' * 3}</span></div>'''
 
 
 TAGS = {
-    "Study": ("#4338CA", "#FFFFFF"),
-    "Idea": ("#E0E3FF", "#312E81"),
-    "Playbook": ("#0D0D0D", "#FFFFFF"),
-    "Tool": ("#F7E85C", "#2B2B27"),
+    "Study": ("#0D0D0D", "#FFFFFF"),
+    "Idea": ("#F7E85C", "#0D0D0D"),
+    "Playbook": ("#FFFFFF", "#0D0D0D"),
+    "Tool": ("#ECECE6", "#2B2B27"),
 }
 
 
 def tag(kind):
     background, color = TAGS[kind]
-    return f'<span style="display: inline-block; padding: 3px 10px; border-radius: 999px; background: {background}; color: {color}; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.5">{kind}</span>'
+    return f'<span style="display: inline-block; padding: 3px 10px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px {color}; background: {background}; color: {color}; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.5">{kind}</span>'
 
 
 def tag_line(kind, extra, color="#45453F"):
@@ -284,7 +284,7 @@ def studio_index(posts, studies):
     feature = f'''<article style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); background: #FFFFFF; border: 1px solid #1A1A1A; border-radius: 20px; overflow: hidden">
 {picture}
 <div style="display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 36px">
-{tag_line("Idea", f'<span style="font-weight: 600; color: #4338CA">Featured</span><span>{meta(featured)}</span>')}
+{tag_line("Idea", f'<span style="font-weight: 600; color: #0D0D0D">Featured</span><span>{meta(featured)}</span>')}
 <h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; line-height: 1.1"><a href="ideas/{featured["slug"]}.html" style="color: #0D0D0D; text-decoration: none">{inline(featured["title"])}</a></h2>
 {lead}
 <a href="ideas/{featured["slug"]}.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #0D0D0D; color: #FFFFFF; text-decoration: none; font-weight: 600">Read the post<span style="position: absolute; left: -10000px">: {html.escape(featured["title"])}</span></a>
@@ -348,11 +348,11 @@ def build_playbook():
         '<p class="no-print" style="margin: 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 16px">'
         '<a href="playbook.md" download>Download as Markdown</a>'
         '<a href="playbook-worksheet.csv" download>Download the scoring worksheet (CSV)</a>'
-        '<button type="button" onclick="window.print()" style="padding: 0; border: 0; background: none; font: inherit; color: #4338CA; text-decoration: underline; cursor: pointer">Print or save as PDF</button></p>'
+        '<button type="button" onclick="window.print()" style="padding: 0; border: 0; background: none; font: inherit; color: #0D0D0D; text-decoration: underline; cursor: pointer">Print or save as PDF</button></p>'
     )
     body = f"""<main style="display: flex; flex-direction: column; gap: 18px; font-size: 18px; line-height: 1.65">
 <header style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px">
-<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4338CA">Open playbook</p>
+<p style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #0D0D0D">Open playbook</p>
 <h1 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(32px, 5vw, 48px); letter-spacing: -0.02em; line-height: 1.08">{inline(title)}</h1>
 </header>
 {download}
