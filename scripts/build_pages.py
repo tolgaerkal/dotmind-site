@@ -60,7 +60,7 @@ DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-l
 def header(prefix, hub):
     # Same header as index.html, with Studio Studies marked as the current section.
     current = ' aria-current="page"' if hub else ""
-    return f"""<header class="no-print" style="border-bottom: 1px solid #1A1A1A; background: #FBF3A6">
+    return f"""<header class="no-print" style="border-bottom: 1px solid #1A1A1A; background: #FFFFFF">
 <div style="max-width: 1200px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
 <a href="{prefix}index.html" style="display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: #0D0D0D; {DISPLAY}; font-weight: 600; font-size: 24px; letter-spacing: -0.02em">dotmind{DOTS}</a>
 <nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; font-size: 16px">
@@ -86,7 +86,7 @@ def page(title, description, prefix, body, width=760, hub=False):
 </head>
 <body>
 {GTM_BODY}
-<div style="font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; color: #0D0D0D; background: #FBF3A6; line-height: 1.5; min-height: 100vh">
+<div style="font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; color: #0D0D0D; background: #FFFFFF; line-height: 1.5; min-height: 100vh">
 {header(prefix, hub)}
 <div style="max-width: {width}px; margin: 0 auto; padding: 48px 24px 80px; display: flex; flex-direction: column; gap: 28px">
 {body}
