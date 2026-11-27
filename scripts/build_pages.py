@@ -26,14 +26,14 @@ OUT = ROOT / "ideas"
 STUDIES_SRC = ROOT / "content" / "studies"
 STUDIES_OUT = ROOT / "studies"
 SITE = "https://www.dotmind.org/"
-# Reference pages shown under "Playbook and tools" on studies.html. Thumbnails are screenshots in ideas/images/.
+# Reference pages shown under "Playbook and tools" on studies.html, with illustrations in ideas/images/heroes/.
 TOOLS = [
-    ("Agent roles matrix", "roles.html", "roles-thumb.jpg",
+    ("Agent roles matrix", "roles.html", "heroes/tool-roles.svg",
      "Six agent roles, plus Learn, across every kind of resident interaction. See which role does what, row by row."),
-    ("Example journey", "journey.html", "journey-thumb.jpg",
+    ("Example journey", "journey.html", "heroes/tool-journey.svg",
      "One interaction in detail: who does what at each step, from a resident’s first question to the decision."),
 ]
-PLAYBOOK_CARD = ("Open playbook", "playbook.html", "playbook-thumb.jpg",
+PLAYBOOK_CARD = ("Open playbook", "playbook.html", "heroes/tool-playbook.svg",
                  "Five steps and fill-in templates for choosing and running your first agent. Free to copy and adapt.")
 # Slug of the idea post to feature at the top of studies.html. None features the newest.
 FEATURED = None
@@ -53,7 +53,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 DISPLAY = "font-family: Space Grotesk, Inter, sans-serif"
 DOTS = '<span aria-hidden="true" style="display: inline-flex; gap: 4px; margin-left: -2px">' + (
-    '<span style="display: inline-block; width: 6px; height: 6px; background: #C2410C"></span>' * 3
+    '<span style="display: inline-block; width: 6px; height: 6px; background: #121417"></span>' * 3
 ) + "</span>"
 
 
@@ -68,6 +68,19 @@ def header(prefix, hub):
 <a href="{prefix}studies.html"{current} style="color: #121417; text-decoration: underline; text-decoration-color: #C2410C; text-decoration-thickness: 2px; text-underline-offset: 6px; font-weight: 600">Studio Studies</a>
 <a href="{prefix}index.html#about" style="color: #121417; text-decoration: none">About</a>
 </nav></div></header>"""
+
+
+def footer(prefix):
+    # The homepage footer, with its links rewritten to work from any page.
+    markup = re.search(r"<footer.*?</footer>", (ROOT / "index.html").read_text(encoding="utf-8"), re.S).group(0)
+    def fix(m):
+        href = m.group(1)
+        if href.startswith("#"):
+            href = f"index.html{href}"
+        if not re.match(r"(https?:|mailto:)", href):
+            href = prefix + href
+        return f'href="{href}"'
+    return re.sub(r'href="([^"]*)"', fix, markup).replace("<footer ", '<footer class="no-print" ', 1)
 
 
 def page(title, description, prefix, body, width=760, hub=False):
@@ -92,6 +105,7 @@ def page(title, description, prefix, body, width=760, hub=False):
 {body}
 <p class="no-print" style="margin: 24px 0 0; padding-top: 24px; border-top: 1px solid #E2E0D8; font-size: 16px"><a href="{prefix}index.html#contact" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #121417; color: #FFFFFF; text-decoration: none; font-weight: 500">Bring us a service</a></p>
 </div>
+{footer(prefix)}
 </div>
 </body>
 </html>
@@ -311,14 +325,14 @@ def studio_index(posts, studies):
         for p in rest
     )
     tool_cards = f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
-<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
 {tag_line("Playbook", "<span>Do it yourself</span>")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #121417; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{PLAYBOOK_CARD[3]}</p>
 <a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500">Open the playbook</a>
 </li>''' + "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
-<img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; object-position: top left; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+<img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
 {tag_line("Tool", "")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{href}" style="color: #121417; text-decoration: none">{title}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(text)}</p>
