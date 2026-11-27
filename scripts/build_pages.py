@@ -257,6 +257,11 @@ def thumb(p, height):
     return f'''<div aria-hidden="true" style="height: {height}px; border-radius: 12px; background: #FFF4EC; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box"><span style="display: inline-flex; gap: 6px">{'<span style="width: 10px; height: 10px; background: #C2410C"></span>' * 3}</span></div>'''
 
 
+def linked(markup, href):
+    # Make a card image clickable without adding a second link for keyboard and screen reader users.
+    return f'<a href="{href}" tabindex="-1" aria-hidden="true" style="display: block">{markup}</a>'
+
+
 TAGS = {
     "Study": ("#C2410C", "#FFFFFF"),
     "Idea": ("#FFE4D3", "#8A2E08"),
@@ -292,11 +297,11 @@ def studio_index(posts, studies):
     if (ROOT / hero).exists():
         # Show the whole image, with the panel filled in the image's own background colour.
         bg = re.search(r'<rect width="640" height="360" fill="(#[0-9A-Fa-f]{6})"', (ROOT / hero).read_text()).group(1)
-        picture = f'<div style="display: flex; align-items: center; background: {bg}; min-height: 260px"><img src="{hero}" alt="" style="display: block; width: 100%; height: auto"></div>'
+        picture = f'<div style="display: flex; align-items: center; height: 100%; background: {bg}; min-height: 260px"><img src="{hero}" alt="" style="display: block; width: 100%; height: auto"></div>'
     else:
         picture = f'<div style="padding: 32px 0 0 32px">{thumb(featured, 320)}</div>'
     feature = f'''<article style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; overflow: hidden">
-{picture}
+{linked(picture, f"ideas/{featured['slug']}.html")}
 <div style="display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 36px">
 {tag_line("Idea", f'<span style="font-weight: 600; color: #C2410C">Featured</span><span>{meta(featured)}</span>')}
 <h2 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; line-height: 1.1"><a href="ideas/{featured["slug"]}.html" style="color: #121417; text-decoration: none">{inline(featured["title"])}</a></h2>
@@ -306,7 +311,7 @@ def studio_index(posts, studies):
 </article>'''
     study_cards = "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
-{thumb(p, 200)}
+{linked(thumb(p, 200), f"studies/{p['slug']}.html")}
 {tag_line("Study", f"<span>{meta(p)}</span>")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 24px; line-height: 1.2"><a href="studies/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(re.sub(r"^Studio study: ", "", p["title"]))}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
@@ -316,7 +321,7 @@ def studio_index(posts, studies):
     )
     idea_cards = "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
-{thumb(p, 180)}
+{linked(thumb(p, 180), f"ideas/{p['slug']}.html")}
 {tag_line("Idea", f"<span>{meta(p)}</span>")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="ideas/{p["slug"]}.html" style="color: #121417; text-decoration: none">{inline(p["title"])}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(p["summary"])}</p>
@@ -325,14 +330,14 @@ def studio_index(posts, studies):
         for p in rest
     )
     tool_cards = f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
-<img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+<a href="{PLAYBOOK_CARD[1]}" tabindex="-1" aria-hidden="true" style="display: block"><img src="ideas/images/{PLAYBOOK_CARD[2]}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box"></a>
 {tag_line("Playbook", "<span>Do it yourself</span>")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{PLAYBOOK_CARD[1]}" style="color: #121417; text-decoration: none">{PLAYBOOK_CARD[0]}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{PLAYBOOK_CARD[3]}</p>
 <a href="{PLAYBOOK_CARD[1]}" style="font-size: 16px; font-weight: 500">Open the playbook</a>
 </li>''' + "\n".join(
         f'''<li style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border: 1px solid #E2E0D8; border-radius: 20px; padding: 20px">
-<img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box">
+<a href="{href}" tabindex="-1" aria-hidden="true" style="display: block"><img src="ideas/images/{image}" alt="" style="display: block; width: 100%; height: 180px; object-fit: cover; border: 1px solid #E2E0D8; border-radius: 12px; box-sizing: border-box"></a>
 {tag_line("Tool", "")}
 <h3 style="margin: 0; {DISPLAY}; font-weight: 600; font-size: 22px; line-height: 1.2"><a href="{href}" style="color: #121417; text-decoration: none">{title}</a></h3>
 <p style="margin: 0; font-size: 16px; color: #3F3D38; flex: 1">{html.escape(text)}</p>
